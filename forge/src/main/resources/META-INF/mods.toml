@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[51,)"
+license="${mod_license}"
+issueTrackerURL="https://github.com/bh679/adventureitemstats-mc/issues"
+
+[[mods]]
+modId="adventureitemstats"
+version="${version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''${mod_description}'''
+displayURL="https://github.com/bh679/adventureitemstats-mc"
+
+[[mixins]]
+config="adventureitemstats.mixins.json"
+
+[[dependencies.adventureitemstats]]
+    modId="forge"
+    mandatory=true
+    versionRange="[51,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.adventureitemstats]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.21.1]"
+    ordering="NONE"
+    side="BOTH"
