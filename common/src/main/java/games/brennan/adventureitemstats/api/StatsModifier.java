@@ -52,6 +52,13 @@ public final class StatsModifier {
         ItemAttributeModifiers current = stack.getOrDefault(
             DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
         List<ItemAttributeModifiers.Entry> entries = current.modifiers();
+        // Armor items don't store their modifiers in the ATTRIBUTE_MODIFIERS
+        // data component — they expose them via Item.getDefaultAttributeModifiers().
+        // Fall back to that when the component is empty so armor stacks roll too.
+        if (entries.isEmpty()) {
+            current = stack.getItem().getDefaultAttributeModifiers();
+            entries = current.modifiers();
+        }
         if (entries.isEmpty()) return;
 
         boolean hasWeapon = false, hasArmor = false;
