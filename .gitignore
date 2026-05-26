@@ -6,6 +6,7 @@ classes/
 run/
 run-data/
 repo/
+release-artifacts-*/
 *.log
 
 # IntelliJ / Eclipse / VS Code
