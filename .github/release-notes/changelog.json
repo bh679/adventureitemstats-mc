@@ -1,3 +1,19 @@
 {
-  "entries": []
+  "entries": [
+    {
+      "id": "difficulty-stat-bonus-hook",
+      "version": "0.6.0",
+      "type": "feat",
+      "title": "Optional progression bonus for item stats",
+      "summary": "Adds a hook for mods that bundle Adventure Item Stats: they can apply a flat bonus to an item's primary stat (attack damage for weapons, armour for armour) on top of the usual roll \u2014 for example, to scale found loot with a difficulty level. Standalone Adventure Item Stats is unchanged; the bonus defaults to zero.",
+      "highlights": [
+        "New applyStats overload that adds a flat bonus to an item's primary stat (attack damage / armour)",
+        "Standalone behaviour is unchanged \u2014 the bonus defaults to zero"
+      ],
+      "date": "2026-06-24",
+      "released": false,
+      "released_in": null,
+      "released_at": null
+    }
+  ]
 }
