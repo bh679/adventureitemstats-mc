@@ -49,6 +49,20 @@ public final class StatsModifier {
      * via a CustomData marker.</p>
      */
     public static void applyStats(ItemStack stack, RandomSource rng) {
+        applyStats(stack, rng, 0.0);
+    }
+
+    /**
+     * As {@link #applyStats(ItemStack, RandomSource)}, but additionally adds a
+     * flat {@code primaryStatBonus} to the stack's <em>primary</em> combat stat
+     * after the multiplicative roll: attack damage for weapons, armor for armor
+     * pieces. Attack speed and armor toughness keep their rolled values.
+     *
+     * <p>The bonus is a deliberate, caller-supplied amount (e.g. a difficulty /
+     * progression scalar), so unlike the σ roll it is <strong>not</strong>
+     * clamped. Pass {@code 0.0} for the plain rolled behaviour.</p>
+     */
+    public static void applyStats(ItemStack stack, RandomSource rng, double primaryStatBonus) {
         ItemAttributeModifiers current = stack.getOrDefault(
             DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
         List<ItemAttributeModifiers.Entry> entries = current.modifiers();
@@ -84,8 +98,13 @@ public final class StatsModifier {
             }
             AttributeModifier original = entry.modifier();
             double playerBase = playerBaseFor(attr);
-            double rolledFinal = (playerBase + original.amount()) * factor;
-            double newAmount = rolledFinal - playerBase;
+            // Flat progression bonus lands on the primary combat stat only
+            // (attack damage / armor); attack speed + toughness keep their
+            // rolled values. Added after the roll, intentionally un-clamped.
+            boolean primaryStat = attr == Attributes.ATTACK_DAMAGE.value()
+                    || attr == Attributes.ARMOR.value();
+            double newAmount = finalAmount(playerBase, original.amount(), factor,
+                    primaryStatBonus, primaryStat);
             AttributeModifier rolled = new AttributeModifier(
                 original.id(),
                 newAmount,
@@ -96,6 +115,20 @@ public final class StatsModifier {
 
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS,
             new ItemAttributeModifiers(rebuilt, current.showInTooltip()));
+    }
+
+    /**
+     * Pure: the final attribute-modifier amount for one rolled attribute.
+     * {@code (playerBase + originalAmount) * factor} is the rolled effective
+     * value; subtracting {@code playerBase} converts it back to a modifier
+     * amount. For a {@code primaryStat} (attack damage / armor) the flat
+     * {@code primaryStatBonus} is then added on top, un-clamped. Package-visible
+     * for unit testing.
+     */
+    static double finalAmount(double playerBase, double originalAmount, double factor,
+                              double primaryStatBonus, boolean primaryStat) {
+        double newAmount = (playerBase + originalAmount) * factor - playerBase;
+        return primaryStat ? newAmount + primaryStatBonus : newAmount;
     }
 
     private static Double factorFor(Attribute attr, StatsRoller.Factors factors) {
