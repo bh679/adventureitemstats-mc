@@ -11,9 +11,9 @@
         "Standalone behaviour is unchanged \u2014 the bonus defaults to zero"
       ],
       "date": "2026-06-24",
-      "released": false,
-      "released_in": null,
-      "released_at": null
+      "released": true,
+      "released_in": "v0.6.0",
+      "released_at": "2026-06-24T08:17:06Z"
     }
   ]
 }
