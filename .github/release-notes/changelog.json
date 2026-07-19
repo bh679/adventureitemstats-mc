@@ -27,9 +27,9 @@
         "Set raiseAttributeCaps=false in config/adventureitemstats.properties to restore vanilla clamping"
       ],
       "date": "2026-07-19",
-      "released": false,
-      "released_in": null,
-      "released_at": null
+      "released": true,
+      "released_in": "v0.7.0",
+      "released_at": "2026-07-19T14:22:45Z"
     }
   ]
 }
