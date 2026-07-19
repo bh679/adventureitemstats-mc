@@ -14,6 +14,22 @@
       "released": true,
       "released_in": "v0.6.0",
       "released_at": "2026-06-24T08:17:06Z"
+    },
+    {
+      "id": "raise-armor-attribute-cap",
+      "version": "0.7.0",
+      "type": "fix",
+      "title": "Armor keeps improving past 1.5 bars",
+      "summary": "Vanilla Minecraft quietly caps a player's armor at 30 points \u2014 one and a half full armor bars \u2014 and throws away anything above it. High-tier gear could promise more armor in its tooltip than the game would ever grant, so late-run armor stopped improving while weapons kept scaling. That ceiling is now raised, and armor toughness along with it.",
+      "highlights": [
+        "Armor above 30 points now actually protects you instead of being silently discarded",
+        "Armor toughness is no longer capped at 20 either",
+        "Set raiseAttributeCaps=false in config/adventureitemstats.properties to restore vanilla clamping"
+      ],
+      "date": "2026-07-19",
+      "released": false,
+      "released_in": null,
+      "released_at": null
     }
   ]
 }
