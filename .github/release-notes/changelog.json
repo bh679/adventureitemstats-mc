@@ -30,6 +30,19 @@
       "released": true,
       "released_in": "v0.7.0",
       "released_at": "2026-07-19T14:22:45Z"
+    },
+    {
+      "id": "ranged-damage-stat",
+      "version": "0.7.0",
+      "type": "feat",
+      "title": "Bows and crossbows roll stats",
+      "summary": "Bows and crossbows now have a Ranged Damage stat, rolled like a sword's Attack Damage. Arrows deal what the tooltip says.",
+      "highlights": [],
+      "pr": 10,
+      "date": "2026-11-07",
+      "released": false,
+      "released_in": null,
+      "released_at": null
     }
   ]
 }
