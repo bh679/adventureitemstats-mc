@@ -2,8 +2,11 @@ package games.brennan.adventureitemstats.fabric;
 
 import com.mojang.logging.LogUtils;
 import games.brennan.adventureitemstats.internal.AisBootstrap;
+import games.brennan.adventureitemstats.internal.RangedDamage;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import org.slf4j.Logger;
 
 /**
@@ -21,5 +24,6 @@ public final class AdventureItemStatsFabric implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("[AdventureItemStats] Fabric init");
         AisBootstrap.init(FabricLoader.getInstance().getConfigDir());
+        Registry.register(BuiltInRegistries.ATTRIBUTE, RangedDamage.ID, RangedDamage.createAttribute());
     }
 }

@@ -22,5 +22,6 @@ public final class AdventureItemStatsNeoForge {
     public AdventureItemStatsNeoForge(IEventBus modBus) {
         LOGGER.info("[AdventureItemStats] NeoForge init");
         AisBootstrap.init(FMLPaths.CONFIGDIR.get());
+        RangedDamageNeoForge.register(modBus);
     }
 }
