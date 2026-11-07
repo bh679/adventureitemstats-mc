@@ -1,6 +1,8 @@
 package games.brennan.adventureitemstats.api;
 
+import games.brennan.adventureitemstats.internal.RangedDamage;
 import games.brennan.adventureitemstats.internal.StatsRoller;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -11,6 +13,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Public entry point for the Adventure Item Stats mod.
@@ -22,10 +25,10 @@ import java.util.List;
  * {@link games.brennan.adventureitemstats.mixin.LootTableMixin}.</p>
  *
  * <p>Applies a Gaussian-distributed multiplier to the stack's
- * <em>effective</em> attack damage, attack speed, armor and armor
- * toughness, writing the rolled modifier amounts back to the
- * {@code ATTRIBUTE_MODIFIERS} data component. Items without any of
- * the four target attributes are no-ops.</p>
+ * <em>effective</em> attack damage, attack speed, armor, armor
+ * toughness and, on bows and crossbows, Ranged Damage, writing the
+ * rolled modifier amounts back to the {@code ATTRIBUTE_MODIFIERS} data
+ * component. Items without any of the target attributes are no-ops.</p>
  */
 public final class StatsModifier {
 
@@ -56,7 +59,8 @@ public final class StatsModifier {
      * As {@link #applyStats(ItemStack, RandomSource)}, but additionally adds a
      * flat {@code primaryStatBonus} to the stack's <em>primary</em> combat stat
      * after the multiplicative roll: attack damage for weapons, armor for armor
-     * pieces. Attack speed and armor toughness keep their rolled values.
+     * pieces, Ranged Damage for bows and crossbows. Attack speed and armor
+     * toughness keep their rolled values.
      *
      * <p>The bonus is a deliberate, caller-supplied amount (e.g. a difficulty /
      * progression scalar), so unlike the σ roll it is <strong>not</strong>
@@ -73,12 +77,19 @@ public final class StatsModifier {
             current = stack.getItem().getDefaultAttributeModifiers();
             entries = current.modifiers();
         }
+        // Loaders that can't give bows and crossbows a default stat start them here.
+        Optional<? extends Holder<Attribute>> rangedDamage = RangedDamage.holder();
+        if (rangedDamage.isPresent() && RangedDamage.isRangedWeapon(stack.getItem())) {
+            current = RangedDamage.withBase(current, rangedDamage.get(), stack.getItem());
+            entries = current.modifiers();
+        }
         if (entries.isEmpty()) return;
+        Attribute ranged = rangedDamage.<Attribute>map(Holder::value).orElse(null);
 
         boolean hasWeapon = false, hasArmor = false;
         for (ItemAttributeModifiers.Entry entry : entries) {
             Attribute attr = entry.attribute().value();
-            if (attr == Attributes.ATTACK_DAMAGE.value() || attr == Attributes.ATTACK_SPEED.value()) {
+            if (attr == Attributes.ATTACK_DAMAGE.value() || attr == Attributes.ATTACK_SPEED.value() || attr == ranged) {
                 hasWeapon = true;
             } else if (attr == Attributes.ARMOR.value() || attr == Attributes.ARMOR_TOUGHNESS.value()) {
                 hasArmor = true;
@@ -91,7 +102,7 @@ public final class StatsModifier {
         List<ItemAttributeModifiers.Entry> rebuilt = new ArrayList<>(entries.size());
         for (ItemAttributeModifiers.Entry entry : entries) {
             Attribute attr = entry.attribute().value();
-            Double factor = factorFor(attr, factors);
+            Double factor = attr == ranged ? Double.valueOf(factors.damage()) : factorFor(attr, factors);
             if (factor == null) {
                 rebuilt.add(entry);
                 continue;
@@ -99,10 +110,11 @@ public final class StatsModifier {
             AttributeModifier original = entry.modifier();
             double playerBase = playerBaseFor(attr);
             // Flat progression bonus lands on the primary combat stat only
-            // (attack damage / armor); attack speed + toughness keep their
-            // rolled values. Added after the roll, intentionally un-clamped.
+            // (attack damage / armor / Ranged Damage); attack speed + toughness
+            // keep their rolled values. Added after the roll, intentionally un-clamped.
             boolean primaryStat = attr == Attributes.ATTACK_DAMAGE.value()
-                    || attr == Attributes.ARMOR.value();
+                    || attr == Attributes.ARMOR.value()
+                    || attr == ranged;
             double newAmount = finalAmount(playerBase, original.amount(), factor,
                     primaryStatBonus, primaryStat);
             AttributeModifier rolled = new AttributeModifier(
@@ -115,6 +127,16 @@ public final class StatsModifier {
 
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS,
             new ItemAttributeModifiers(rebuilt, current.showInTooltip()));
+    }
+
+    /** The Ranged Damage attribute, or empty before registration. */
+    public static Optional<? extends Holder<Attribute>> rangedDamageAttribute() {
+        return RangedDamage.holder();
+    }
+
+    /** What a full-power shot from {@code stack} deals, or 0 if it isn't a bow or crossbow. */
+    public static double rangedDamage(ItemStack stack) {
+        return RangedDamage.of(stack);
     }
 
     /**

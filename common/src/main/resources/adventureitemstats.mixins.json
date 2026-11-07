@@ -6,7 +6,8 @@
   "mixins": [
     "LootTableMixin",
     "RepairItemRecipeMixin",
-    "RangedAttributeAccessor"
+    "RangedAttributeAccessor",
+    "ServerLevelMixin"
   ],
   "client": [],
   "server": [],
