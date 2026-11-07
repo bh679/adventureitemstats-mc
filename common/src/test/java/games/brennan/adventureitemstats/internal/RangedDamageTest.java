@@ -43,8 +43,8 @@ class RangedDamageTest {
 
     @Test
     void mobShot_landsTheWholeGain_atItsOwnSpeed() {
-        // a skeleton: speed 1.6, base ~3.2 (vanilla ~5.1). A bow rated 16 adds the full +10.
-        assertEquals(1.6 * 3.2 + 10.0, dealt(1.6, 3.2, 16.0, RangedDamage.NOMINAL_BOW, 1.6), EPS);
+        // a skeleton: speed 1.6, base ~2.2 (vanilla ~3.5). A bow rated 16 adds the full +10.
+        assertEquals(1.6 * 2.2 + 10.0, dealt(1.6, 2.2, 16.0, RangedDamage.NOMINAL_BOW, 1.6), EPS);
     }
 
     @Test
