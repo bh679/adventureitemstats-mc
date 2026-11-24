@@ -48,4 +48,28 @@ class StatsModifierTest {
         assertEquals(-2.4, StatsModifier.finalAmount(4.0, -2.4, 1.0, 1.5, false), EPS);
         assertEquals(2.0, StatsModifier.finalAmount(0.0, 2.0, 1.0, 5.0, false), EPS);
     }
+
+    @Test
+    void fixedFactors_sameFactorOnEveryStat() {
+        var f = StatsModifier.fixedFactors(1.2);
+        assertEquals(1.2, f.damage(), EPS);
+        assertEquals(1.2, f.speed(), EPS);
+        assertEquals(1.2, f.armor(), EPS);
+        assertEquals(1.2, f.toughness(), EPS);
+    }
+
+    @Test
+    void fixedFactors_clampedLikeARoll() {
+        assertEquals(1.5, StatsModifier.fixedFactors(3.0).armor(), EPS);
+        assertEquals(0.5, StatsModifier.fixedFactors(0.1).damage(), EPS);
+    }
+
+    @Test
+    void bestRollPlusBonus_ironChestplateAndSword() {
+        // iron chestplate (6 armor) at the 1.5 cap with a +2 bonus → 11
+        double f = StatsModifier.fixedFactors(1.5).armor();
+        assertEquals(11.0, StatsModifier.finalAmount(0.0, 6.0, f, 2.0, true), EPS);
+        // iron sword (+5 damage, player base 1) at 1.5 → (1+5)*1.5 - 1 = 8
+        assertEquals(8.0, StatsModifier.finalAmount(1.0, 5.0, f, 0.0, true), EPS);
+    }
 }

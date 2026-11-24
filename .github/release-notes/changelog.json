@@ -43,6 +43,19 @@
       "released": true,
       "released_in": "v0.8.0",
       "released_at": "2026-11-07T06:46:05Z"
+    },
+    {
+      "id": "fixed-factor-stat-roll",
+      "version": "0.9.0",
+      "type": "feat",
+      "title": "Fixed-quality stat rolls for other mods",
+      "summary": "Adds a hook for mods that bundle Adventure Item Stats: they can give an item stats at a quality they choose, up to the best a roll can reach, instead of a random roll. For example, a rare monster can carry gear close to the best found in chests. Playing with Adventure Item Stats on its own is unchanged.",
+      "highlights": [],
+      "pr": 12,
+      "date": "2026-11-24",
+      "released": false,
+      "released_in": null,
+      "released_at": null
     }
   ]
 }
