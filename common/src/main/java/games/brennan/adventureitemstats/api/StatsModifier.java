@@ -67,6 +67,41 @@ public final class StatsModifier {
      * clamped. Pass {@code 0.0} for the plain rolled behaviour.</p>
      */
     public static void applyStats(ItemStack stack, RandomSource rng, double primaryStatBonus) {
+        apply(stack, primaryStatBonus,
+            (hasWeapon, hasArmor) -> StatsRoller.sample(rng, hasWeapon, hasArmor, StatsRoller.SIGMA));
+    }
+
+    /**
+     * As {@link #applyStats(ItemStack, RandomSource, double)}, but every stat AIS
+     * varies — attack damage, attack speed, armor, armor toughness and Ranged
+     * Damage — takes the same fixed {@code factor} instead of a random roll. The
+     * factor is a multiplier on the <em>effective</em> value, clamped to
+     * [{@link StatsRoller#MIN_FACTOR}, {@link StatsRoller#MAX_FACTOR}] like a rolled
+     * one, so {@code 1.5} reproduces the best possible roll. {@code primaryStatBonus}
+     * lands on the primary stat exactly as in {@code applyStats}.
+     *
+     * <p>For callers that pick a quality themselves — e.g. a "lucky" drop that
+     * should land in a chosen band rather than anywhere on the bell curve. Consumes
+     * no randomness.</p>
+     */
+    public static void applyStatsAtFactor(ItemStack stack, double factor, double primaryStatBonus) {
+        StatsRoller.Factors fixed = fixedFactors(factor);
+        apply(stack, primaryStatBonus, (hasWeapon, hasArmor) -> fixed);
+    }
+
+    /** Pure: the same clamped {@code factor} on every stat. Package-visible for unit testing. */
+    static StatsRoller.Factors fixedFactors(double factor) {
+        double f = StatsRoller.clampFactor(factor);
+        return new StatsRoller.Factors(f, f, f, f);
+    }
+
+    /** Picks the factors once the stack's stat groups are known. */
+    @FunctionalInterface
+    private interface FactorSource {
+        StatsRoller.Factors factors(boolean hasWeapon, boolean hasArmor);
+    }
+
+    private static void apply(ItemStack stack, double primaryStatBonus, FactorSource source) {
         ItemAttributeModifiers current = stack.getOrDefault(
             DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
         List<ItemAttributeModifiers.Entry> entries = current.modifiers();
@@ -97,7 +132,7 @@ public final class StatsModifier {
         }
         if (!hasWeapon && !hasArmor) return;
 
-        StatsRoller.Factors factors = StatsRoller.sample(rng, hasWeapon, hasArmor, StatsRoller.SIGMA);
+        StatsRoller.Factors factors = source.factors(hasWeapon, hasArmor);
 
         List<ItemAttributeModifiers.Entry> rebuilt = new ArrayList<>(entries.size());
         for (ItemAttributeModifiers.Entry entry : entries) {
